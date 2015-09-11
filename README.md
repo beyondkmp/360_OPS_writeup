@@ -61,6 +61,28 @@ mv access.log access_$(date +"%Y%m%d").log
 
 **缺陷**
 
+考虑的过于简单，有可能会出现日志丢失的情况。
+
+
+## 应用题
+
+### 1.socks_proxy:
+
+```bash
+#!/bin/bash
+
+while true
+do
+    if ! nc -z 0.0.0.0 8081 > /dev/null
+    then
+        ssh -p 22 -N -D 0.0.0.0:8081  beyond@172.16.199.150 &
+    fi
+    sleep 30
+done
+```
+
+将上面的程序保存为socks_proxy.sh,每次要运行就直接sh socks_porxy.sh &,也可以写到服务里面。
+
 
 
 
