@@ -42,3 +42,28 @@ if __name__=='__main__':
 
 ![ifconfig_result](image/ifconfig.png)
 
+
+### 4. log_cutting
+
+```bash
+# access.log日志切割
+#!/bin/bash
+mv access.log access_$(date +"%Y%m%d").log
+```
+
+保存上面的脚本程序为access_log.sh,并保存到/usr/bin/access_log.sh,接下来设置crontab作业：
+
+```
+0 0 * * * bash /usr/bin/access_log.sh
+```
+
+每天的0点0分，那个时候应该都睡觉了，会自动保存access日志，并将其日期作为名字的一部分保存。
+
+**缺陷**
+
+
+
+
+
+
+
